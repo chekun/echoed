@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Echoed - Typecho's plugins & themes!</title>
+    <meta name="keywords" content="typecho,插件,主题" />
+    <link rel="stylesheet" href="//cdn.bootcss.com/element-ui/1.2.5/theme-default/index.css">
+    <style>
+        html, body {
+            margin: 0;
+            font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+        }
+        .el-col:nth-child(3n+4), .el-col:nth-child(3n+5), .el-col:nth-child(3n+6) {
+            margin-top: 20px;
+        }
+        .el-card {
+            cursor: pointer;
+        }
+        .el-card__header {
+            padding: 8px;
+        }
+        .el-card__body {
+            padding: 10px 8px;
+            height: 100px;
+            overflow: hidden;
+        }
+        .el-input__inner {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div style="width: 100%;height:240px;background: #20A0FF;position: relative;">
+            <div style="position: absolute;width: 600px;height: 200px;left:0;bottom:0;right:0;top:0;margin: auto;text-align: center;">
+                <h1 style="color: white">Echoed</h1>
+                <el-input size="large" placeholder="搜索Typecho主题/插件，如：AppStore" v-model="keyword"></el-input>
+                <div style="margin-top: 20px;font-size: 12px; color: #E5E9F2">
+                    版本: v{{ .v }} 支持: Typecho v1.0, v0.9, v0.8
+                </div>
+                <div style="margin-top: 20px;font-size: 12px; color: #E5E9F2">
+                    <a class="github-button" href="https://github.com/chekun/echoed" aria-label="Star chekun/echoed on GitHub">Star</a>
+                    <a class="github-button" href="https://github.com/chekun" aria-label="Follow @chekun on GitHub">Follow @chekun</a>
+                </div>
+            </div>
+        </div>
+        <div style="width: 920px;margin:20px auto;">
+            <el-row :gutter="10">
+                <el-col :span="8" v-for="(item, index) in filtered" :key="item.name">
+                    <el-card @click.native="clickCard(index)">
+                        <div slot="header">
+                            <el-tag type="primary">{{ `{{ item.type === 'plugin' ? '插件' : '主题' }}` }}</el-tag> <span v-text="item.name"></span>
+                        </div>
+                        <div v-text="item.versions[0].description"></div>
+                    </el-card>
+                </el-col>
+            </el-row>
+        </div>
+        <div style="text-align: center;">
+            <img src="//assets.qiniu.com/v2/qiniu-white-195x105.png" />
+        </div>
+        <el-dialog :title="show_detail ? filtered[index].name : ''" v-model="show_detail">
+            <el-table :data="filtered[index].versions" v-if="show_detail">
+                <el-table-column property="version" label="版本"></el-table-column>
+                <el-table-column property="require" label="需求"></el-table-column>
+                <el-table-column label="下载">
+                    <template scope="scope">
+                        <el-button size="small" @click="download(scope.row)">下载</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <div class="package-readme"></div>
+        </el-dialog>
+    </div>
+    <script src="//cdn.bootcss.com/vue/2.2.4/vue.min.js"></script>
+    <script src="//cdn.bootcss.com/element-ui/1.2.5/index.js"></script>
+    <script src="//cdn.bootcss.com/axios/0.16.0/axios.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    items: [],
+                    keyword: '',
+                    show_detail: false,
+                    index: -1
+                }
+            },
+            created() {
+                this.load();
+            },
+            computed: {
+                filtered() {
+                    if (! this.keyword.trim().length === 0) {
+                        return this.items;
+                    }
+                    let keyword = this.keyword.toLowerCase();
+                    return this.items.filter((item) => {
+                        return item.name.toLowerCase().indexOf(keyword) > -1;
+                    });
+                }
+            },
+            methods: {
+                load() {
+                    axios.get('/packages.json').then((r) => {
+                        this.items = r.data.packages;
+                    });
+                },
+                clickCard(index) {
+                    this.index = index;
+                    this.show_detail = true;
+                    let package = this.filtered[this.index];
+                    ga('event', 'view', package.name);
+                },
+                download(version) {
+                    let package = this.filtered[this.index];
+                    let url = '/' + (package.type) + 's/' + package.name + '/download/' + version.version + '.zip';
+                    ga('event', 'download', package.name, version.version);
+                    location = url;
+                }
+            }
+        });
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-77205980-2', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+.DS_Store
+.idea
+.env
+working
+packages
+echoed
+storage/packages.json
