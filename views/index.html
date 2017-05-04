@@ -77,7 +77,7 @@
                         <div slot="header">
                             <el-tag type="primary">{{ `{{ item.type === 'plugin' ? '插件' : '主题' }}` }}</el-tag> <span v-text="item.name"></span>
                         </div>
-                        <div v-text="item.versions[0].description"></div>
+                        <div v-text="item.versions ? item.versions[0].description : ''"></div>
                     </el-card>
                 </el-col>
             </el-row>
