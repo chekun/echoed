@@ -125,7 +125,7 @@ func Zip(zipFile, directory string) error {
 		return err
 	}
 	echodFilePath := os.Getenv("ROOT_PATH")
-	err = zip.AddEntry("./.echod", echodFilePath+"storage/.echod")
+	err = zip.AddEntry("./.echoed", echodFilePath+"storage/.echoed")
 	if err != nil {
 		return err
 	}
